@@ -1,0 +1,6 @@
+[package]
+name = "rust-mines"
+version = "0.1.0"
+authors = ["Ben Brunton <benbrunton@hotmail.com>"]
+
+[dependencies]
