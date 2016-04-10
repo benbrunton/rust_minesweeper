@@ -135,7 +135,8 @@ fn count_mines(positions: &Vec<(u32, u32)>, x: u32, y: u32) -> u32 {
 pub struct FieldView{
     view: Vec<Vec<Tile>>,
     field: Field,
-    game_over: bool
+    game_over: bool,
+    mines: usize
 }
 
 impl FieldView {
@@ -151,7 +152,13 @@ impl FieldView {
             tiles.push(row);
         }
         
-        FieldView{view: tiles, field: Field::new(width, height, mines), game_over:false}
+        let field = Field::new(width, height, mines);
+        let mut mines = 0;
+        for v in field.0.iter() {
+            mines = mines + v.iter().filter(|&tile| tile.clone() == TileState::Mine).count();
+        }
+        
+        FieldView{view: tiles, field: field, game_over:false, mines: mines}
     }
     
     pub fn in_play(&self) -> bool {
@@ -162,11 +169,89 @@ impl FieldView {
     pub fn select(&mut self, col:String, row:u32){
         let c = FieldView::get_col_num(col) as usize;
         let r = row as usize;
+        self.select_square(c, r);
+    }
+    
+    fn select_square(&mut self, col:usize, row:usize){
+        if row < self.view.len() && col < self.view[0].len() {
+            let tile = self.view[row][col].clone();
+            if tile == Tile::Closed {
+                self.view[row][col] = Tile::Open;
+                
+                if self.field.0[row][col] == TileState::Mine {
+                    self.game_over = true;
+                }
+                
+                if self.field.0[row][col] == TileState::Number(0){
+                    self.select_surrounding(col, row);
+                }
+            }
+        }
+    }
+    
+    pub fn mark(&mut self, col:String, row:u32){
+        let c = FieldView::get_col_num(col) as usize;
+        let r = row as usize;
         if r < self.view.len() && c < self.view[0].len() {
-            self.view[r][c] = Tile::Open;
-            
-            if self.field.0[r][c] == TileState::Mine {
-                self.game_over = true;
+            let tile = self.view[r][c].clone();
+            self.view[r][c] = if tile == Tile::Mark {
+                Tile::Closed
+            }else if tile == Tile::Closed {
+                Tile::Mark
+            }else {
+                tile
+            };
+        }
+    }
+    
+    pub fn flag(&mut self, col:String, row:u32){
+        let c = FieldView::get_col_num(col) as usize;
+        let r = row as usize;
+        if r < self.view.len() && c < self.view[0].len() {
+            let tile = self.view[r][c].clone();
+            self.view[r][c] = if tile == Tile::Closed {
+                 Tile::Flag
+            } else if tile == Tile::Flag {
+                Tile::Closed
+            } else {
+                tile
+            };
+        }
+    }
+    
+    pub fn unfold(&mut self, col:String, row:u32){
+        let c = FieldView::get_col_num(col) as usize;
+        let r = row as usize;
+        self.select_surrounding(c, r);
+    }
+    
+    fn select_surrounding(&mut self, c:usize, r:usize){
+        let mut pairs:Vec<(usize, usize)> = vec!(
+            (c, r + 1),
+            (c + 1, r),
+            (c + 1, r + 1)
+        );
+        
+        if c > 0 {
+            pairs.push((c - 1, r));
+            pairs.push((c - 1, r + 1));
+        }
+        
+        if r > 0 {
+            pairs.push((c, r - 1));
+            pairs.push((c + 1, r - 1));
+        }
+        
+        if r > 0 && c > 0 {
+            pairs.push((c - 1, r - 1));
+        }
+        
+        
+        
+        for(c_, r_) in pairs{
+        
+            if r_ < self.view.len() && c_ < self.view[0].len() {
+                self.select_square(c_, r_);
             }
         }
     }
@@ -192,6 +277,15 @@ impl FieldView {
 impl fmt::Display for FieldView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     
+        let _ = writeln!(f, "mines : {}", self.mines);
+        
+        let mut flags = 0;
+        for v in self.view.iter(){
+            flags = flags + v.iter().filter(|&tile| tile.clone() == Tile::Flag).count();
+        }
+        
+        let _ = writeln!(f, "flags : {}", flags);
+    
         let _ = write!(f, " ");
         let letters = vec!('a', 'b', 'c', 
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
@@ -206,15 +300,16 @@ impl fmt::Display for FieldView {
         let _ = write!(f, "\n");
         
         let mut row_num = 0;
-        let mut col_num = 0;
+        let mut col_num;
         for row in self.view.iter(){
             let _ = write!(f, "{} ", row_num);
             col_num = 0;
             for tile in row.iter(){
                 let _ = match *tile {
-                    Tile::Closed => write!(f, "{}", tile),
-                    Tile::Open   => write!(f, "{}", self.field.0[row_num][col_num]),
-                    _            => write!(f, "?")
+                    Tile::Closed    => write!(f, "{}", tile),
+                    Tile::Open      => write!(f, "{}", self.field.0[row_num][col_num]),
+                    Tile::Mark      => write!(f, "? "),
+                    Tile::Flag      => write!(f, "o ")
                 };
                 col_num = col_num + 1;
             }

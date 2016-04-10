@@ -18,6 +18,18 @@ impl Game {
         self.board.select(col, row);
     }
     
+    pub fn mark(&mut self, col:String, row:u32){
+        self.board.mark(col, row);
+    }
+    
+    pub fn flag(&mut self, col:String, row:u32){
+        self.board.flag(col, row);
+    }
+    
+    pub fn unfold(&mut self, col:String, row:u32){
+        self.board.unfold(col, row);
+    }
+    
     pub fn in_play(&self) -> bool {
         self.board.in_play()
     }
