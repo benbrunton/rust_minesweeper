@@ -5,3 +5,4 @@ authors = ["Ben Brunton <benbrunton@hotmail.com>"]
 
 [dependencies]
 rand = "0.3"
+regex = "0.1"
