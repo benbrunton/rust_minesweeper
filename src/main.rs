@@ -5,12 +5,12 @@ mod board;
 mod game;
 
 use game::*;
-use std::io;
+use std::io::{self, Write};
 use std::process::exit;
 use regex::Regex;
 
 fn main() {
-    let game = Game::new();
+    let mut game = Game::new();
     
     intro();
     game.display();
@@ -22,8 +22,11 @@ fn main() {
         println!("{:?}", command);
         match command{
             Command::Exit => break,
-            _ => game.display()
+            Command::Select(col, row) => game.select(col, row),
+            _ => ()
         }
+        
+        game.display();
     }
     
     exit(end_game());
@@ -32,10 +35,10 @@ fn main() {
 #[derive(Debug)]
 enum Command{
     None,
-    Select(String, u8),
-    Flag(String, u8),
-    Mark(String, u8),
-    Unfold(String, u8),
+    Select(String, u32),
+    Flag(String, u32),
+    Mark(String, u32),
+    Unfold(String, u32),
     Exit
 }
 
@@ -46,17 +49,24 @@ fn intro(){
 
 fn end_game() -> i32{
     
+    println!("game over!");
     println!("bye!\n");
     return 0;
 }
 
 fn show_instructions(){
-    // println!("instructions here");
+    println!("find all mines to win!");
     println!("q :\texit game");
+    println!("a0 :\tselect square a0");
+    println!("!a0 :\tflag a0 as a mine");
+    println!("?a0 :\tmark a0 with a ?");
+    println!("#ao :\tuncover unmarked neighbours of a0");
+    print!("your move: ");
+    io::stdout().flush().unwrap();
 }
 
 fn handle_input() -> Command{
-
+    
     let mut input = String::new();
 
     match io::stdin().read_line(&mut input) {
@@ -69,8 +79,8 @@ fn create_move(input:String) -> Command{
     
     let uncover_re = Regex::new(r"^(\w+)(\d+)\n$").unwrap();
     let flag_re = Regex::new(r"^!(\w+)(\d+)\n$").unwrap();
-    let mark_re = Regex::new(r"^?(\w+)(\d+)\n$").unwrap();
-    let unfold_re = Regex::new(r"^#(\w+)(\d+)\n$").unwrap();
+    let mark_re = Regex::new(r"^\?(\w+)(\d+)\n$").unwrap();
+    let unfold_re = Regex::new(r"^\#(\w+)(\d+)\n$").unwrap();
     
     match &*input {
         "q\n" => Command::Exit,
@@ -94,11 +104,11 @@ fn create_move(input:String) -> Command{
     }
 }
 
-fn to_row_col(reg:&Regex, input:&str)->(String, u8){
+fn to_row_col(reg:&Regex, input:&str)->(String, u32){
     let opt = reg.captures(input);
     let cap = opt.unwrap();
     let row = cap.at(1).unwrap().to_string();
-    let col = cap.at(2).unwrap().parse::<u8>().unwrap();
+    let col = cap.at(2).unwrap().parse::<u32>().unwrap();
     
     (row, col)
 }

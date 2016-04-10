@@ -12,11 +12,13 @@ impl Game {
     
     pub fn display(&self){
         println!("{}", self.board);
-        
-        self.board.show_result();
+    }
+    
+    pub fn select(&mut self, col:String, row:u32){
+        self.board.select(col, row);
     }
     
     pub fn in_play(&self) -> bool {
-        true
+        self.board.in_play()
     }
 }
