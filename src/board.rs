@@ -26,6 +26,7 @@ impl fmt::Display for TileState{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let icon = match self {
             &TileState::Mine        => "♦".to_string(),
+            &TileState::Number(0)   => " ".to_string(),
             &TileState::Number(n)   => n.to_string()
         };
         write!(f, "{} ", icon)
@@ -76,7 +77,7 @@ impl Field {
 impl fmt::Display for Field {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     
-        let _ = write!(f, " ");
+        let _ = write!(f, "\n\n ");
         let letters = vec!('a', 'b', 'c', 
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
             'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
@@ -277,6 +278,7 @@ impl FieldView {
 impl fmt::Display for FieldView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     
+        let _ = writeln!(f, "\n");
         let _ = writeln!(f, "mines : {}", self.mines);
         
         let mut flags = 0;
@@ -286,7 +288,7 @@ impl fmt::Display for FieldView {
         
         let _ = writeln!(f, "flags : {}", flags);
     
-        let _ = write!(f, " ");
+        let _ = write!(f, "\n ");
         let letters = vec!('a', 'b', 'c', 
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
             'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
