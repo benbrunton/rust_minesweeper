@@ -56,10 +56,10 @@ impl Field {
         for y in 0 .. height {
             let mut row = vec!();
             for x in 0 .. width {
-                let tile = if isMine(&mine_positions, x, y) {
+                let tile = if is_mine(&mine_positions, x, y) {
                     TileState::Mine
                 }else{
-                    TileState::Number(countMines(&mine_positions, x, y))
+                    TileState::Number(count_mines(&mine_positions, x, y))
                 };
                 
                 row.push(tile);
@@ -76,26 +76,26 @@ impl Field {
 impl fmt::Display for Field {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     
-        write!(f, " ");
+        let _ = write!(f, " ");
         let letters = vec!('a', 'b', 'c', 
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
             'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
             
         let mut cols = letters.iter();
 
-        write!(f, " ");
+        let _ = write!(f, " ");
         for _ in 0..self.0.iter().count() {
-            write!(f, "{} ", cols.next().unwrap());
+            let _ = write!(f, "{} ", cols.next().unwrap());
         }
-        write!(f, "\n");
+        let _ = write!(f, "\n");
         
         let mut row_num = 0;
         for row in self.0.iter(){
-            write!(f, "{} ", row_num);
+            let _ = write!(f, "{} ", row_num);
             for tile in row.iter(){
-                write!(f, "{}", tile);
+                let _ = write!(f, "{}", tile);
             }
-            write!(f, "\n");
+            let _ = write!(f, "\n");
             row_num = row_num + 1;
         }
         writeln!(f, "\n")
@@ -103,11 +103,11 @@ impl fmt::Display for Field {
     }
 }
 
-fn isMine(positions: &Vec<(u8, u8)>, x: u8, y: u8) -> bool {
+fn is_mine(positions: &Vec<(u8, u8)>, x: u8, y: u8) -> bool {
     positions.iter().any(|&(xpos, ypos)| xpos == x && ypos == y)
 }
 
-fn countMines(positions: &Vec<(u8, u8)>, x: u8, y: u8) -> u8 {
+fn count_mines(positions: &Vec<(u8, u8)>, x: u8, y: u8) -> u8 {
     let mut surrounding:Vec<(u8, u8)> = vec!();
     
     if x > 0 {
@@ -128,7 +128,7 @@ fn countMines(positions: &Vec<(u8, u8)>, x: u8, y: u8) -> u8 {
     surrounding.push((x + 1, y));
     surrounding.push((x + 1, y + 1));
     
-    surrounding.iter().filter(|&&(xpos, ypos)| isMine(positions, xpos, ypos) ).count() as u8
+    surrounding.iter().filter(|&&(xpos, ypos)| is_mine(positions, xpos, ypos) ).count() as u8
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -153,7 +153,7 @@ impl FieldView {
         FieldView{view: tiles, field: Field::new(width, height, mines)}
     }
     
-    pub fn showResult(&self) {
+    pub fn show_result(&self) {
         println!("{}", self.field);
     }
 }
@@ -161,26 +161,26 @@ impl FieldView {
 impl fmt::Display for FieldView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     
-        write!(f, " ");
+        let _ = write!(f, " ");
         let letters = vec!('a', 'b', 'c', 
             'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
             'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
             
         let mut cols = letters.iter();
 
-        write!(f, " ");
+        let _ = write!(f, " ");
         for _ in 0..self.view.iter().count() {
-            write!(f, "{} ", cols.next().unwrap());
+            let _ = write!(f, "{} ", cols.next().unwrap());
         }
-        write!(f, "\n");
+        let _ = write!(f, "\n");
         
         let mut row_num = 0;
         for row in self.view.iter(){
-            write!(f, "{} ", row_num);
+            let _ = write!(f, "{} ", row_num);
             for tile in row.iter(){
-                write!(f, "{}", tile);
+                let _ = write!(f, "{}", tile);
             }
-            write!(f, "\n");
+            let _ = write!(f, "\n");
             row_num = row_num + 1;
         }
         writeln!(f, "\n")
