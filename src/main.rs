@@ -19,7 +19,6 @@ fn main() {
         
         show_instructions();
         let command = handle_input();
-        println!("{:?}", command);
         match command{
             Command::Exit => break,
             Command::Select(col, row) => game.select(col, row),
